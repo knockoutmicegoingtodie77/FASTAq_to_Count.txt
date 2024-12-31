@@ -1,0 +1,826 @@
+setwd("E:/RNA sequencing analysis/")
+if (!require("BiocManager", quietly = TRUE))
+  install.packages("BiocManager")
+
+BiocManager::install("Rsubread")
+library(Rsubread)
+buildindex(basename="reference_mm_index",reference="GRCm38.primary_assembly.genome.fa")
+#alignR632
+align.stat2 <- align(index="reference_mm_index",readfile1="R632_R1.fastq.gz",readfile2="R632_R2.fastq.gz")
+propmapped("R632_R1.fastq.gz.subread.BAM")
+fc_PE <- featureCounts("R632_R1.fastq.gz.subread.BAM",annot.inbuilt = "mm10",isPairedEnd=TRUE)
+head(fc_PE$counts)
+annotation_data <- fc_PE$annotation
+head(annotation_data)
+BiocManager::install("biomaRt")
+library(biomaRt)
+# Connect to Ensembl using biomaRt
+ensembl <- useMart("ensembl", dataset = "mmusculus_gene_ensembl")
+# Query for gene names and Entrez IDs for the GeneIDs from featureCounts
+gene_info <- getBM(attributes = c("ensembl_gene_id", "external_gene_name", "entrezgene_id"),
+                   filters = "ensembl_gene_id", 
+                   values = annotation_data$GeneID, 
+                   mart = ensembl)
+
+# Merge the gene information with the featureCounts annotation data
+enriched_annotation <- merge(annotation_data, gene_info, by.x = "GeneID", by.y = "ensembl_gene_id", all.x = TRUE)
+
+# View the enriched annotation data
+head(enriched_annotation)
+# Combine the count data with enriched annotation information
+final_result <- cbind(enriched_annotation, fc_PE$counts)
+# View the GeneID column from featureCounts
+head(annotation_data$GeneID)
+# Check the first few Gene IDs
+head(annotation_data$GeneID)
+# Load the biomaRt package
+library(biomaRt)
+
+# Connect to Ensembl using the mmusculus dataset (mouse)
+ensembl <- useMart("ensembl", dataset = "mmusculus_gene_ensembl")
+
+# Query for gene names and Entrez gene IDs
+gene_info <- getBM(
+  attributes = c("entrezgene_id", "external_gene_name", "ensembl_gene_id"),  # Entrez ID, Gene Name, Ensembl ID
+  filters = "entrezgene_id",  # Use Entrez Gene IDs as the filter
+  values = annotation_data$GeneID,  # Provide the Entrez Gene IDs from featureCounts
+  mart = ensembl
+)
+
+# View the first few rows of the query result
+head(gene_info)
+# Merge the gene information with the annotation data from featureCounts
+enriched_annotation <- merge(annotation_data, gene_info, by.x = "GeneID", by.y = "entrezgene_id", all.x = TRUE)
+
+# View the merged annotation data
+head(enriched_annotation)
+# Combine the enriched annotation with count data
+final_result <- cbind(enriched_annotation, fc_PE$counts)
+
+# Save the final result to a .txt file
+write.table(final_result, file = "gene_counts_with_entrez_and_names.txt", sep = "\t", 
+            row.names = FALSE, quote = FALSE)
+#debug
+dim(enriched_annotation)
+dim(fc_PE$counts)
+common_ids <- intersect(rownames(enriched_annotation), rownames(fc_PE$counts))
+enriched_annotation <- enriched_annotation[common_ids, ]
+fc_PE$counts <- fc_PE$counts[common_ids, ]
+
+final_result <- cbind(enriched_annotation, fc_PE$counts)
+
+# Save the final result
+write.table(final_result, file = "R632gene_counts.txt", sep = "\t", 
+            row.names = FALSE, quote = FALSE)
+head(final_result)
+write.csv(final_result, file = "R632gene_counts.csv")
+#alignR633
+align.stat2 <- align(index="reference_mm_index",readfile1="R633_R1.fastq.gz",readfile2="R633_R2.fastq.gz")
+propmapped("R633_R1.fastq.gz.subread.BAM")
+fc_PE <- featureCounts("R633_R1.fastq.gz.subread.BAM",annot.inbuilt = "mm10",isPairedEnd=TRUE)
+head(fc_PE$counts)
+annotation_data <- fc_PE$annotation
+head(annotation_data)
+BiocManager::install("biomaRt")
+library(biomaRt)
+# Connect to Ensembl using biomaRt
+ensembl <- useMart("ensembl", dataset = "mmusculus_gene_ensembl")
+# Query for gene names and Entrez IDs for the GeneIDs from featureCounts
+gene_info <- getBM(attributes = c("ensembl_gene_id", "external_gene_name", "entrezgene_id"),
+                   filters = "ensembl_gene_id", 
+                   values = annotation_data$GeneID, 
+                   mart = ensembl)
+
+# Merge the gene information with the featureCounts annotation data
+enriched_annotation <- merge(annotation_data, gene_info, by.x = "GeneID", by.y = "ensembl_gene_id", all.x = TRUE)
+
+# View the enriched annotation data
+head(enriched_annotation)
+# Combine the count data with enriched annotation information
+final_result <- cbind(enriched_annotation, fc_PE$counts)
+# View the GeneID column from featureCounts
+head(annotation_data$GeneID)
+# Check the first few Gene IDs
+head(annotation_data$GeneID)
+# Load the biomaRt package
+library(biomaRt)
+
+# Connect to Ensembl using the mmusculus dataset (mouse)
+ensembl <- useMart("ensembl", dataset = "mmusculus_gene_ensembl")
+
+# Query for gene names and Entrez gene IDs
+gene_info <- getBM(
+  attributes = c("entrezgene_id", "external_gene_name", "ensembl_gene_id"),  # Entrez ID, Gene Name, Ensembl ID
+  filters = "entrezgene_id",  # Use Entrez Gene IDs as the filter
+  values = annotation_data$GeneID,  # Provide the Entrez Gene IDs from featureCounts
+  mart = ensembl
+)
+
+# View the first few rows of the query result
+head(gene_info)
+# Merge the gene information with the annotation data from featureCounts
+enriched_annotation <- merge(annotation_data, gene_info, by.x = "GeneID", by.y = "entrezgene_id", all.x = TRUE)
+
+# View the merged annotation data
+head(enriched_annotation)
+# Combine the enriched annotation with count data
+final_result <- cbind(enriched_annotation, fc_PE$counts)
+
+
+#debug
+dim(enriched_annotation)
+dim(fc_PE$counts)
+common_ids <- intersect(rownames(enriched_annotation), rownames(fc_PE$counts))
+enriched_annotation <- enriched_annotation[common_ids, ]
+fc_PE$counts <- fc_PE$counts[common_ids, ]
+
+final_result <- cbind(enriched_annotation, fc_PE$counts)
+
+# Save the final result
+write.table(final_result, file = "R633gene_counts.txt", sep = "\t", 
+            row.names = FALSE, quote = FALSE)
+head(final_result)
+write.csv(final_result, file = "R633gene_counts.csv")
+
+#alignR670
+align.stat2 <- align(index="reference_mm_index",readfile1="R670_R1.fastq.gz",readfile2="R670_R2.fastq.gz")
+propmapped("R670_R1.fastq.gz.subread.BAM")
+fc_PE <- featureCounts("R670_R1.fastq.gz.subread.BAM",annot.inbuilt = "mm10",isPairedEnd=TRUE)
+head(fc_PE$counts)
+annotation_data <- fc_PE$annotation
+head(annotation_data)
+
+# Connect to Ensembl using biomaRt
+ensembl <- useMart("ensembl", dataset = "mmusculus_gene_ensembl")
+# Query for gene names and Entrez IDs for the GeneIDs from featureCounts
+gene_info <- getBM(attributes = c("ensembl_gene_id", "external_gene_name", "entrezgene_id"),
+                   filters = "ensembl_gene_id", 
+                   values = annotation_data$GeneID, 
+                   mart = ensembl)
+
+# Merge the gene information with the featureCounts annotation data
+enriched_annotation <- merge(annotation_data, gene_info, by.x = "GeneID", by.y = "ensembl_gene_id", all.x = TRUE)
+
+# View the enriched annotation data
+head(enriched_annotation)
+# Combine the count data with enriched annotation information
+final_result <- cbind(enriched_annotation, fc_PE$counts)
+# View the GeneID column from featureCounts
+head(annotation_data$GeneID)
+# Check the first few Gene IDs
+head(annotation_data$GeneID)
+
+
+# Connect to Ensembl using the mmusculus dataset (mouse)
+ensembl <- useMart("ensembl", dataset = "mmusculus_gene_ensembl")
+
+# Query for gene names and Entrez gene IDs
+gene_info <- getBM(
+  attributes = c("entrezgene_id", "external_gene_name", "ensembl_gene_id"),  # Entrez ID, Gene Name, Ensembl ID
+  filters = "entrezgene_id",  # Use Entrez Gene IDs as the filter
+  values = annotation_data$GeneID,  # Provide the Entrez Gene IDs from featureCounts
+  mart = ensembl
+)
+
+# View the first few rows of the query result
+head(gene_info)
+# Merge the gene information with the annotation data from featureCounts
+enriched_annotation <- merge(annotation_data, gene_info, by.x = "GeneID", by.y = "entrezgene_id", all.x = TRUE)
+
+# View the merged annotation data
+head(enriched_annotation)
+# Combine the enriched annotation with count data
+final_result <- cbind(enriched_annotation, fc_PE$counts)
+
+
+#debug
+dim(enriched_annotation)
+dim(fc_PE$counts)
+common_ids <- intersect(rownames(enriched_annotation), rownames(fc_PE$counts))
+enriched_annotation <- enriched_annotation[common_ids, ]
+fc_PE$counts <- fc_PE$counts[common_ids, ]
+
+final_result <- cbind(enriched_annotation, fc_PE$counts)
+
+# Save the final result
+write.table(final_result, file = "R670gene_counts.txt", sep = "\t", 
+            row.names = FALSE, quote = FALSE)
+head(final_result)
+write.csv(final_result, file = "R670gene_counts.csv")
+
+#alignR672
+align.stat2 <- align(index="reference_mm_index",readfile1="R672_R1.fastq.gz",readfile2="R672_R2.fastq.gz")
+propmapped("R672_R1.fastq.gz.subread.BAM")
+fc_PE <- featureCounts("R672_R1.fastq.gz.subread.BAM",annot.inbuilt = "mm10",isPairedEnd=TRUE)
+head(fc_PE$counts)
+annotation_data <- fc_PE$annotation
+head(annotation_data)
+
+# Connect to Ensembl using biomaRt
+ensembl <- useMart("ensembl", dataset = "mmusculus_gene_ensembl")
+# Query for gene names and Entrez IDs for the GeneIDs from featureCounts
+gene_info <- getBM(attributes = c("ensembl_gene_id", "external_gene_name", "entrezgene_id"),
+                   filters = "ensembl_gene_id", 
+                   values = annotation_data$GeneID, 
+                   mart = ensembl)
+
+# Merge the gene information with the featureCounts annotation data
+enriched_annotation <- merge(annotation_data, gene_info, by.x = "GeneID", by.y = "ensembl_gene_id", all.x = TRUE)
+
+# View the enriched annotation data
+head(enriched_annotation)
+# Combine the count data with enriched annotation information
+final_result <- cbind(enriched_annotation, fc_PE$counts)
+# View the GeneID column from featureCounts
+head(annotation_data$GeneID)
+# Check the first few Gene IDs
+head(annotation_data$GeneID)
+
+
+# Connect to Ensembl using the mmusculus dataset (mouse)
+ensembl <- useMart("ensembl", dataset = "mmusculus_gene_ensembl")
+
+# Query for gene names and Entrez gene IDs
+gene_info <- getBM(
+  attributes = c("entrezgene_id", "external_gene_name", "ensembl_gene_id"),  # Entrez ID, Gene Name, Ensembl ID
+  filters = "entrezgene_id",  # Use Entrez Gene IDs as the filter
+  values = annotation_data$GeneID,  # Provide the Entrez Gene IDs from featureCounts
+  mart = ensembl
+)
+
+# View the first few rows of the query result
+head(gene_info)
+# Merge the gene information with the annotation data from featureCounts
+enriched_annotation <- merge(annotation_data, gene_info, by.x = "GeneID", by.y = "entrezgene_id", all.x = TRUE)
+
+# View the merged annotation data
+head(enriched_annotation)
+# Combine the enriched annotation with count data
+final_result <- cbind(enriched_annotation, fc_PE$counts)
+
+
+#debug
+dim(enriched_annotation)
+dim(fc_PE$counts)
+common_ids <- intersect(rownames(enriched_annotation), rownames(fc_PE$counts))
+enriched_annotation <- enriched_annotation[common_ids, ]
+fc_PE$counts <- fc_PE$counts[common_ids, ]
+
+final_result <- cbind(enriched_annotation, fc_PE$counts)
+
+# Save the final result
+write.table(final_result, file = "R672gene_counts.txt", sep = "\t", 
+            row.names = FALSE, quote = FALSE)
+head(final_result)
+write.csv(final_result, file = "R672gene_counts.csv")
+#R673
+# Align reads using Rsubread for R673
+align.stat2 <- align(index = "reference_mm_index", 
+                     readfile1 = "R673_R1.fastq.gz", 
+                     readfile2 = "R673_R2.fastq.gz")
+
+# Check the proportion of mapped reads
+propmapped("R673_R1.fastq.gz.subread.BAM")
+
+fc_PE <- featureCounts("R673_R1.fastq.gz.subread.BAM",annot.inbuilt = "mm10",isPairedEnd=TRUE)
+head(fc_PE$counts)
+annotation_data <- fc_PE$annotation
+head(annotation_data)
+
+# Connect to Ensembl using biomaRt
+ensembl <- useMart("ensembl", dataset = "mmusculus_gene_ensembl")
+# Query for gene names and Entrez IDs for the GeneIDs from featureCounts
+gene_info <- getBM(attributes = c("ensembl_gene_id", "external_gene_name", "entrezgene_id"),
+                   filters = "ensembl_gene_id", 
+                   values = annotation_data$GeneID, 
+                   mart = ensembl)
+
+# Merge the gene information with the featureCounts annotation data
+enriched_annotation <- merge(annotation_data, gene_info, by.x = "GeneID", by.y = "ensembl_gene_id", all.x = TRUE)
+
+# View the enriched annotation data
+head(enriched_annotation)
+# Combine the count data with enriched annotation information
+final_result <- cbind(enriched_annotation, fc_PE$counts)
+# View the GeneID column from featureCounts
+head(annotation_data$GeneID)
+# Check the first few Gene IDs
+head(annotation_data$GeneID)
+
+
+# Connect to Ensembl using the mmusculus dataset (mouse)
+ensembl <- useMart("ensembl", dataset = "mmusculus_gene_ensembl")
+
+# Query for gene names and Entrez gene IDs
+gene_info <- getBM(
+  attributes = c("entrezgene_id", "external_gene_name", "ensembl_gene_id"),  # Entrez ID, Gene Name, Ensembl ID
+  filters = "entrezgene_id",  # Use Entrez Gene IDs as the filter
+  values = annotation_data$GeneID,  # Provide the Entrez Gene IDs from featureCounts
+  mart = ensembl
+)
+
+# View the first few rows of the query result
+head(gene_info)
+# Merge the gene information with the annotation data from featureCounts
+enriched_annotation <- merge(annotation_data, gene_info, by.x = "GeneID", by.y = "entrezgene_id", all.x = TRUE)
+
+# View the merged annotation data
+head(enriched_annotation)
+# Combine the enriched annotation with count data
+final_result <- cbind(enriched_annotation, fc_PE$counts)
+
+
+#debug
+dim(enriched_annotation)
+dim(fc_PE$counts)
+common_ids <- intersect(rownames(enriched_annotation), rownames(fc_PE$counts))
+enriched_annotation <- enriched_annotation[common_ids, ]
+fc_PE$counts <- fc_PE$counts[common_ids, ]
+
+final_result <- cbind(enriched_annotation, fc_PE$counts)
+
+# Save the final result
+write.table(final_result, file = "R673gene_counts.txt", sep = "\t", 
+            row.names = FALSE, quote = FALSE)
+head(final_result)
+write.csv(final_result, file = "R673gene_counts.csv")
+#R677 
+# Align reads using Rsubread for R677
+align.stat2 <- align(index = "reference_mm_index", 
+                     readfile1 = "R677_R1.fastq.gz", 
+                     readfile2 = "R677_R2.fastq.gz")
+
+# Check the proportion of mapped reads
+propmapped("R677_R1.fastq.gz.subread.BAM")
+
+fc_PE <- featureCounts("R677_R1.fastq.gz.subread.BAM",annot.inbuilt = "mm10",isPairedEnd=TRUE)
+head(fc_PE$counts)
+annotation_data <- fc_PE$annotation
+head(annotation_data)
+
+# Connect to Ensembl using biomaRt
+ensembl <- useMart("ensembl", dataset = "mmusculus_gene_ensembl")
+# Query for gene names and Entrez IDs for the GeneIDs from featureCounts
+gene_info <- getBM(attributes = c("ensembl_gene_id", "external_gene_name", "entrezgene_id"),
+                   filters = "ensembl_gene_id", 
+                   values = annotation_data$GeneID, 
+                   mart = ensembl)
+
+# Merge the gene information with the featureCounts annotation data
+enriched_annotation <- merge(annotation_data, gene_info, by.x = "GeneID", by.y = "ensembl_gene_id", all.x = TRUE)
+
+# View the enriched annotation data
+head(enriched_annotation)
+# Combine the count data with enriched annotation information
+final_result <- cbind(enriched_annotation, fc_PE$counts)
+# View the GeneID column from featureCounts
+head(annotation_data$GeneID)
+# Check the first few Gene IDs
+head(annotation_data$GeneID)
+
+
+# Connect to Ensembl using the mmusculus dataset (mouse)
+ensembl <- useMart("ensembl", dataset = "mmusculus_gene_ensembl")
+# Query for gene names and Entrez gene IDs
+gene_info <- getBM(
+  attributes = c("entrezgene_id", "external_gene_name", "ensembl_gene_id"),  # Entrez ID, Gene Name, Ensembl ID
+  filters = "entrezgene_id",  # Use Entrez Gene IDs as the filter
+  values = annotation_data$GeneID,  # Provide the Entrez Gene IDs from featureCounts
+  mart = ensembl
+)
+
+# View the first few rows of the query result
+head(gene_info)
+# Merge the gene information with the annotation data from featureCounts
+enriched_annotation <- merge(annotation_data, gene_info, by.x = "GeneID", by.y = "entrezgene_id", all.x = TRUE)
+
+# View the merged annotation data
+head(enriched_annotation)
+# Combine the enriched annotation with count data
+final_result <- cbind(enriched_annotation, fc_PE$counts)
+
+
+#debug
+dim(enriched_annotation)
+dim(fc_PE$counts)
+common_ids <- intersect(rownames(enriched_annotation), rownames(fc_PE$counts))
+enriched_annotation <- enriched_annotation[common_ids, ]
+fc_PE$counts <- fc_PE$counts[common_ids, ]
+
+final_result <- cbind(enriched_annotation, fc_PE$counts)
+
+# Save the final result
+write.table(final_result, file = "R677gene_counts.txt", sep = "\t", 
+            row.names = FALSE, quote = FALSE)
+head(final_result)
+write.csv(final_result, file = "R677gene_counts.csv")
+#R678
+# Align reads using Rsubread for R678
+align.stat2 <- align(index = "reference_mm_index", 
+                     readfile1 = "R678_R1.fastq.gz", 
+                     readfile2 = "R678_R2.fastq.gz")
+
+# Check the proportion of mapped reads
+propmapped("R678_R1.fastq.gz.subread.BAM")
+
+fc_PE <- featureCounts("R678_R1.fastq.gz.subread.BAM",annot.inbuilt = "mm10",isPairedEnd=TRUE)
+head(fc_PE$counts)
+annotation_data <- fc_PE$annotation
+head(annotation_data)
+
+# Connect to Ensembl using biomaRt
+ensembl <- useMart("ensembl", dataset = "mmusculus_gene_ensembl")
+# Query for gene names and Entrez IDs for the GeneIDs from featureCounts
+gene_info <- getBM(attributes = c("ensembl_gene_id", "external_gene_name", "entrezgene_id"),
+                   filters = "ensembl_gene_id", 
+                   values = annotation_data$GeneID, 
+                   mart = ensembl)
+
+# Merge the gene information with the featureCounts annotation data
+enriched_annotation <- merge(annotation_data, gene_info, by.x = "GeneID", by.y = "ensembl_gene_id", all.x = TRUE)
+
+# View the enriched annotation data
+head(enriched_annotation)
+# Combine the count data with enriched annotation information
+final_result <- cbind(enriched_annotation, fc_PE$counts)
+# View the GeneID column from featureCounts
+head(annotation_data$GeneID)
+# Check the first few Gene IDs
+head(annotation_data$GeneID)
+
+
+# Connect to Ensembl using the mmusculus dataset (mouse)
+ensembl <- useMart("ensembl", dataset = "mmusculus_gene_ensembl")
+# Query for gene names and Entrez gene IDs
+gene_info <- getBM(
+  attributes = c("entrezgene_id", "external_gene_name", "ensembl_gene_id"),  # Entrez ID, Gene Name, Ensembl ID
+  filters = "entrezgene_id",  # Use Entrez Gene IDs as the filter
+  values = annotation_data$GeneID,  # Provide the Entrez Gene IDs from featureCounts
+  mart = ensembl
+)
+
+# View the first few rows of the query result
+head(gene_info)
+# Merge the gene information with the annotation data from featureCounts
+enriched_annotation <- merge(annotation_data, gene_info, by.x = "GeneID", by.y = "entrezgene_id", all.x = TRUE)
+
+# View the merged annotation data
+head(enriched_annotation)
+# Combine the enriched annotation with count data
+final_result <- cbind(enriched_annotation, fc_PE$counts)
+
+
+#debug
+dim(enriched_annotation)
+dim(fc_PE$counts)
+common_ids <- intersect(rownames(enriched_annotation), rownames(fc_PE$counts))
+enriched_annotation <- enriched_annotation[common_ids, ]
+fc_PE$counts <- fc_PE$counts[common_ids, ]
+
+final_result <- cbind(enriched_annotation, fc_PE$counts)
+
+# Save the final result
+write.table(final_result, file = "R678gene_counts.txt", sep = "\t", 
+            row.names = FALSE, quote = FALSE)
+head(final_result)
+write.csv(final_result, file = "R678gene_counts.csv")
+#R680
+# Align reads using Rsubread for R680
+align.stat2 <- align(index = "reference_mm_index", 
+                     readfile1 = "R680_R1.fastq.gz", 
+                     readfile2 = "R680_R2.fastq.gz")
+
+# Check the proportion of mapped reads
+propmapped("R680_R1.fastq.gz.subread.BAM")
+
+fc_PE <- featureCounts("R680_R1.fastq.gz.subread.BAM",annot.inbuilt = "mm10",isPairedEnd=TRUE)
+head(fc_PE$counts)
+annotation_data <- fc_PE$annotation
+head(annotation_data)
+
+# Connect to Ensembl using biomaRt
+ensembl <- useMart("ensembl", dataset = "mmusculus_gene_ensembl")
+# Query for gene names and Entrez IDs for the GeneIDs from featureCounts
+gene_info <- getBM(attributes = c("ensembl_gene_id", "external_gene_name", "entrezgene_id"),
+                   filters = "ensembl_gene_id", 
+                   values = annotation_data$GeneID, 
+                   mart = ensembl)
+
+# Merge the gene information with the featureCounts annotation data
+enriched_annotation <- merge(annotation_data, gene_info, by.x = "GeneID", by.y = "ensembl_gene_id", all.x = TRUE)
+
+# View the enriched annotation data
+head(enriched_annotation)
+# Combine the count data with enriched annotation information
+final_result <- cbind(enriched_annotation, fc_PE$counts)
+# View the GeneID column from featureCounts
+head(annotation_data$GeneID)
+# Check the first few Gene IDs
+head(annotation_data$GeneID)
+
+
+# Query for gene names and Entrez gene IDs
+gene_info <- getBM(
+  attributes = c("entrezgene_id", "external_gene_name", "ensembl_gene_id"),  # Entrez ID, Gene Name, Ensembl ID
+  filters = "entrezgene_id",  # Use Entrez Gene IDs as the filter
+  values = annotation_data$GeneID,  # Provide the Entrez Gene IDs from featureCounts
+  mart = ensembl
+)
+
+# View the first few rows of the query result
+head(gene_info)
+# Merge the gene information with the annotation data from featureCounts
+enriched_annotation <- merge(annotation_data, gene_info, by.x = "GeneID", by.y = "entrezgene_id", all.x = TRUE)
+
+# View the merged annotation data
+head(enriched_annotation)
+# Combine the enriched annotation with count data
+final_result <- cbind(enriched_annotation, fc_PE$counts)
+
+
+#debug
+dim(enriched_annotation)
+dim(fc_PE$counts)
+common_ids <- intersect(rownames(enriched_annotation), rownames(fc_PE$counts))
+enriched_annotation <- enriched_annotation[common_ids, ]
+fc_PE$counts <- fc_PE$counts[common_ids, ]
+
+final_result <- cbind(enriched_annotation, fc_PE$counts)
+
+# Save the final result
+write.table(final_result, file = "R680gene_counts.txt", sep = "\t", 
+            row.names = FALSE, quote = FALSE)
+head(final_result)
+write.csv(final_result, file = "R680gene_counts.csv")
+#R686
+# Align reads using Rsubread for R686
+align.stat2 <- align(index = "reference_mm_index", 
+                     readfile1 = "R686_R1.fastq.gz", 
+                     readfile2 = "R686_R2.fastq.gz")
+
+# Check the proportion of mapped reads
+propmapped("R686_R1.fastq.gz.subread.BAM")
+
+fc_PE <- featureCounts("R686_R1.fastq.gz.subread.BAM",annot.inbuilt = "mm10",isPairedEnd=TRUE)
+head(fc_PE$counts)
+annotation_data <- fc_PE$annotation
+head(annotation_data)
+
+# Connect to Ensembl using biomaRt
+ensembl <- useMart("ensembl", dataset = "mmusculus_gene_ensembl")
+# Query for gene names and Entrez IDs for the GeneIDs from featureCounts
+gene_info <- getBM(attributes = c("ensembl_gene_id", "external_gene_name", "entrezgene_id"),
+                   filters = "ensembl_gene_id", 
+                   values = annotation_data$GeneID, 
+                   mart = ensembl)
+
+# Merge the gene information with the featureCounts annotation data
+enriched_annotation <- merge(annotation_data, gene_info, by.x = "GeneID", by.y = "ensembl_gene_id", all.x = TRUE)
+
+# View the enriched annotation data
+head(enriched_annotation)
+# Combine the count data with enriched annotation information
+final_result <- cbind(enriched_annotation, fc_PE$counts)
+# View the GeneID column from featureCounts
+head(annotation_data$GeneID)
+# Check the first few Gene IDs
+head(annotation_data$GeneID)
+
+
+# Query for gene names and Entrez gene IDs
+gene_info <- getBM(
+  attributes = c("entrezgene_id", "external_gene_name", "ensembl_gene_id"),  # Entrez ID, Gene Name, Ensembl ID
+  filters = "entrezgene_id",  # Use Entrez Gene IDs as the filter
+  values = annotation_data$GeneID,  # Provide the Entrez Gene IDs from featureCounts
+  mart = ensembl
+)
+
+# View the first few rows of the query result
+head(gene_info)
+# Merge the gene information with the annotation data from featureCounts
+enriched_annotation <- merge(annotation_data, gene_info, by.x = "GeneID", by.y = "entrezgene_id", all.x = TRUE)
+
+# View the merged annotation data
+head(enriched_annotation)
+# Combine the enriched annotation with count data
+final_result <- cbind(enriched_annotation, fc_PE$counts)
+
+
+#debug
+dim(enriched_annotation)
+dim(fc_PE$counts)
+common_ids <- intersect(rownames(enriched_annotation), rownames(fc_PE$counts))
+enriched_annotation <- enriched_annotation[common_ids, ]
+fc_PE$counts <- fc_PE$counts[common_ids, ]
+
+final_result <- cbind(enriched_annotation, fc_PE$counts)
+
+# Save the final result
+write.table(final_result, file = "R686gene_counts.txt", sep = "\t", 
+            row.names = FALSE, quote = FALSE)
+head(final_result)
+write.csv(final_result, file = "R686gene_counts.csv")
+#R687
+# Align reads using Rsubread for R687
+align.stat2 <- align(index = "reference_mm_index", 
+                     readfile1 = "R687_R1.fastq.gz", 
+                     readfile2 = "R687_R2.fastq.gz")
+
+# Check the proportion of mapped reads
+propmapped("R687_R1.fastq.gz.subread.BAM")
+
+fc_PE <- featureCounts("R687_R1.fastq.gz.subread.BAM",annot.inbuilt = "mm10",isPairedEnd=TRUE)
+head(fc_PE$counts)
+annotation_data <- fc_PE$annotation
+head(annotation_data)
+
+# Connect to Ensembl using biomaRt
+ensembl <- useMart("ensembl", dataset = "mmusculus_gene_ensembl")
+# Query for gene names and Entrez IDs for the GeneIDs from featureCounts
+gene_info <- getBM(attributes = c("ensembl_gene_id", "external_gene_name", "entrezgene_id"),
+                   filters = "ensembl_gene_id", 
+                   values = annotation_data$GeneID, 
+                   mart = ensembl)
+
+# Merge the gene information with the featureCounts annotation data
+enriched_annotation <- merge(annotation_data, gene_info, by.x = "GeneID", by.y = "ensembl_gene_id", all.x = TRUE)
+
+# View the enriched annotation data
+head(enriched_annotation)
+# Combine the count data with enriched annotation information
+final_result <- cbind(enriched_annotation, fc_PE$counts)
+# View the GeneID column from featureCounts
+head(annotation_data$GeneID)
+# Check the first few Gene IDs
+head(annotation_data$GeneID)
+
+
+# Query for gene names and Entrez gene IDs
+gene_info <- getBM(
+  attributes = c("entrezgene_id", "external_gene_name", "ensembl_gene_id"),  # Entrez ID, Gene Name, Ensembl ID
+  filters = "entrezgene_id",  # Use Entrez Gene IDs as the filter
+  values = annotation_data$GeneID,  # Provide the Entrez Gene IDs from featureCounts
+  mart = ensembl
+)
+
+# View the first few rows of the query result
+head(gene_info)
+# Merge the gene information with the annotation data from featureCounts
+enriched_annotation <- merge(annotation_data, gene_info, by.x = "GeneID", by.y = "entrezgene_id", all.x = TRUE)
+
+# View the merged annotation data
+head(enriched_annotation)
+# Combine the enriched annotation with count data
+final_result <- cbind(enriched_annotation, fc_PE$counts)
+
+
+#debug
+dim(enriched_annotation)
+dim(fc_PE$counts)
+common_ids <- intersect(rownames(enriched_annotation), rownames(fc_PE$counts))
+enriched_annotation <- enriched_annotation[common_ids, ]
+fc_PE$counts <- fc_PE$counts[common_ids, ]
+
+final_result <- cbind(enriched_annotation, fc_PE$counts)
+
+# Save the final result
+write.table(final_result, file = "R687gene_counts.txt", sep = "\t", 
+            row.names = FALSE, quote = FALSE)
+head(final_result)
+write.csv(final_result, file = "R687gene_counts.csv")
+#R691
+# Align reads using Rsubread for R691
+align.stat2 <- align(index = "reference_mm_index", 
+                     readfile1 = "R691_R1.fastq.gz", 
+                     readfile2 = "R691_R2.fastq.gz")
+
+# Check the proportion of mapped reads
+propmapped("R691_R1.fastq.gz.subread.BAM")
+
+fc_PE <- featureCounts("R691_R1.fastq.gz.subread.BAM",annot.inbuilt = "mm10",isPairedEnd=TRUE)
+head(fc_PE$counts)
+annotation_data <- fc_PE$annotation
+head(annotation_data)
+
+# Connect to Ensembl using biomaRt
+ensembl <- useMart("ensembl", dataset = "mmusculus_gene_ensembl")
+# Query for gene names and Entrez IDs for the GeneIDs from featureCounts
+gene_info <- getBM(attributes = c("ensembl_gene_id", "external_gene_name", "entrezgene_id"),
+                   filters = "ensembl_gene_id", 
+                   values = annotation_data$GeneID, 
+                   mart = ensembl)
+
+# Merge the gene information with the featureCounts annotation data
+enriched_annotation <- merge(annotation_data, gene_info, by.x = "GeneID", by.y = "ensembl_gene_id", all.x = TRUE)
+
+# View the enriched annotation data
+head(enriched_annotation)
+# Combine the count data with enriched annotation information
+final_result <- cbind(enriched_annotation, fc_PE$counts)
+# View the GeneID column from featureCounts
+head(annotation_data$GeneID)
+# Check the first few Gene IDs
+head(annotation_data$GeneID)
+
+
+# Query for gene names and Entrez gene IDs
+gene_info <- getBM(
+  attributes = c("entrezgene_id", "external_gene_name", "ensembl_gene_id"),  # Entrez ID, Gene Name, Ensembl ID
+  filters = "entrezgene_id",  # Use Entrez Gene IDs as the filter
+  values = annotation_data$GeneID,  # Provide the Entrez Gene IDs from featureCounts
+  mart = ensembl
+)
+
+# View the first few rows of the query result
+head(gene_info)
+# Merge the gene information with the annotation data from featureCounts
+enriched_annotation <- merge(annotation_data, gene_info, by.x = "GeneID", by.y = "entrezgene_id", all.x = TRUE)
+
+# View the merged annotation data
+head(enriched_annotation)
+# Combine the enriched annotation with count data
+final_result <- cbind(enriched_annotation, fc_PE$counts)
+
+
+#debug
+dim(enriched_annotation)
+dim(fc_PE$counts)
+common_ids <- intersect(rownames(enriched_annotation), rownames(fc_PE$counts))
+enriched_annotation <- enriched_annotation[common_ids, ]
+fc_PE$counts <- fc_PE$counts[common_ids, ]
+
+final_result <- cbind(enriched_annotation, fc_PE$counts)
+
+# Save the final result
+write.table(final_result, file = "R691gene_counts.txt", sep = "\t", 
+            row.names = FALSE, quote = FALSE)
+head(final_result)
+write.csv(final_result, file = "R691gene_counts.csv")
+#R692
+# Align reads using Rsubread for R692
+align.stat2 <- align(index = "reference_mm_index", 
+                     readfile1 = "R692_R1.fastq.gz", 
+                     readfile2 = "R692_R2.fastq.gz")
+
+# Check the proportion of mapped reads
+propmapped("R692_R1.fastq.gz.subread.BAM")
+
+fc_PE <- featureCounts("R692_R1.fastq.gz.subread.BAM",annot.inbuilt = "mm10",isPairedEnd=TRUE)
+head(fc_PE$counts)
+annotation_data <- fc_PE$annotation
+head(annotation_data)
+
+# Connect to Ensembl using biomaRt
+ensembl <- useMart("ensembl", dataset = "mmusculus_gene_ensembl")
+# Query for gene names and Entrez IDs for the GeneIDs from featureCounts
+gene_info <- getBM(attributes = c("ensembl_gene_id", "external_gene_name", "entrezgene_id"),
+                   filters = "ensembl_gene_id", 
+                   values = annotation_data$GeneID, 
+                   mart = ensembl)
+
+# Merge the gene information with the featureCounts annotation data
+enriched_annotation <- merge(annotation_data, gene_info, by.x = "GeneID", by.y = "ensembl_gene_id", all.x = TRUE)
+
+# View the enriched annotation data
+head(enriched_annotation)
+# Combine the count data with enriched annotation information
+final_result <- cbind(enriched_annotation, fc_PE$counts)
+# View the GeneID column from featureCounts
+head(annotation_data$GeneID)
+# Check the first few Gene IDs
+head(annotation_data$GeneID)
+
+
+# Query for gene names and Entrez gene IDs
+gene_info <- getBM(
+  attributes = c("entrezgene_id", "external_gene_name", "ensembl_gene_id"),  # Entrez ID, Gene Name, Ensembl ID
+  filters = "entrezgene_id",  # Use Entrez Gene IDs as the filter
+  values = annotation_data$GeneID,  # Provide the Entrez Gene IDs from featureCounts
+  mart = ensembl
+)
+
+# View the first few rows of the query result
+head(gene_info)
+# Merge the gene information with the annotation data from featureCounts
+enriched_annotation <- merge(annotation_data, gene_info, by.x = "GeneID", by.y = "entrezgene_id", all.x = TRUE)
+
+# View the merged annotation data
+head(enriched_annotation)
+# Combine the enriched annotation with count data
+final_result <- cbind(enriched_annotation, fc_PE$counts)
+
+
+#debug
+dim(enriched_annotation)
+dim(fc_PE$counts)
+common_ids <- intersect(rownames(enriched_annotation), rownames(fc_PE$counts))
+enriched_annotation <- enriched_annotation[common_ids, ]
+fc_PE$counts <- fc_PE$counts[common_ids, ]
+
+final_result <- cbind(enriched_annotation, fc_PE$counts)
+
+# Save the final result
+write.table(final_result, file = "R692gene_counts.txt", sep = "\t", 
+            row.names = FALSE, quote = FALSE)
+head(final_result)
+write.csv(final_result, file = "R692gene_counts.csv")
